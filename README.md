@@ -8,4 +8,4 @@ Now I've been studying on the slam techniques in the Tokyo University. I found t
 kikanbou! Haven't you been there, eh?
 
 1)the restricted 7*5 types of bags problem is the problem met in the mobile game called Xue Zu.
-The problem solution file is called 约束背包问题.
+The problem solution file is called 绾︽潫鑳屽寘闂.
