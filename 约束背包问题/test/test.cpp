@@ -17,7 +17,7 @@ int g_nCostSum[5][10][2];
 const int nCostCoeff[7]={1,1,1,1,1,1,0};
 const char nStraBase[7]={15,15,10,15,15,15,15};
 double dWeight[5]={30,30,10,3.5,80};//suppose rec<=50, spec>=400;300,300,100,35,800
-//double dWeight[5]={3,3,2,2,15};//300,300,200,200,1500
+//double dWeight[5]={30,30,20,20,150};//300,300,200,200,1500
 double dWeightMap[5][7];
 int g_nMaxSet[7][5],g_nMaxValue,g_nMaxLeft;
 int nAllNum=15;
