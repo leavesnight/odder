@@ -10,13 +10,14 @@
 using namespace std;
 
 #define PI 3.1415926
-#define MAX_SCORE 8000
+#define MAX_SCORE 10000/3
 
-int g_nCostSum[5][10];
-const int nCostCoeff[7]={2,2,2,2,2,2,1};
+int g_nCostSum[5][10][2];
+//const int nCostCoeff[7] = { 2,2,2,2,2,2,1 };
+const int nCostCoeff[7]={1,1,1,1,1,1,0};
 const char nStraBase[7]={15,15,10,15,15,15,15};
-double dWeight[5]={300,300,100,35,800};//suppose rec<=50, spec>=400
-//double dWeight[5]={300,300,200,200,1500};
+double dWeight[5]={30,30,10,3.5,80};//suppose rec<=50, spec>=400;300,300,100,35,800
+//double dWeight[5]={3,3,2,2,15};//300,300,200,200,1500
 double dWeightMap[5][7];
 int g_nMaxSet[7][5],g_nMaxValue,g_nMaxLeft;
 int nAllNum=15;
@@ -42,7 +43,7 @@ void find(const int n[8],int nSet[7][5],int nStep,int nType,double nValue,int nL
 			//cout<<"2";
 			if (j>2) break;
 		}
-		if (nLeft<g_nCostSum[nStep][j]/nCostCoeff[nType]){
+		if (nLeft<g_nCostSum[nStep][j][nCostCoeff[nType]]){
 			//cout<<"1";
 			if (g_nMaxValue<nValue){
 				g_nMaxValue=nValue;
@@ -66,11 +67,11 @@ void find(const int n[8],int nSet[7][5],int nStep,int nType,double nValue,int nL
 				//if (nType==0) cout<<"3";
 				nSet[nType][nStep]=j+1;
 				if (nNextType>-1){
-					find(n,nSet,nNextStep,nNextType,nValue+(j+1)*dWeight[nStep]/nAllNum*n[nType],nLeft-g_nCostSum[nStep][j]/nCostCoeff[nType],bEnum);
+					find(n,nSet,nNextStep,nNextType,nValue+(j+1)*dWeight[nStep]/nAllNum*n[nType],nLeft-g_nCostSum[nStep][j][nCostCoeff[nType]],bEnum);
 				}else{
 					if (g_nMaxValue<nValue+(j+1)*dWeight[nStep]/nAllNum*n[nType]){
 						g_nMaxValue=nValue+(j+1)*dWeight[nStep]/nAllNum*n[nType];
-						g_nMaxLeft=nLeft-g_nCostSum[nStep][j]/nCostCoeff[nType];
+						g_nMaxLeft=nLeft-g_nCostSum[nStep][j][nCostCoeff[nType]];
 						for (int i=0;i<7;i++)
 							for (int j=0;j<5;j++)
 								g_nMaxSet[i][j]=nSet[i][j];
@@ -83,10 +84,42 @@ void find(const int n[8],int nSet[7][5],int nStep,int nType,double nValue,int nL
 	//bEnum[nType][nStep]=false;
 }
 //int f[MAX_SCORE/5+1][40+1][40+1][4];//occupation;the points' sum of the full type;the points' sum of the single type;the order of the former step
-int f[7][5][MAX_SCORE/5+1][40+1][40+1][4];
+#define div5 /1
+short f[7][5][MAX_SCORE div5 +1][40+1][40+1][4];
+
+/*short arr_score[11];
+short hash_score[MAX_SCORE+1];
+short hash_score_ex[MAX_SCORE + 1];
+
+void recursive_score(short num,short score,short maxnum) {
+	if (num == 0) {
+		hash_score[score] = 1;
+	}
+	else {
+		for (short i = 0; i <= maxnum; ++i) {
+			recursive_score(num - 1, score+arr_score[i],i);
+		}
+	}
+}*/
 
 int main(){
 	using namespace std;
+	int nCost[4][10] =
+		{ 20,40,40,60,80,80,100,120,120,140,
+		60,120,120,180,240,240,300,360,360,420,
+		20,40,40,60,80,80,100,120,120,140,
+		10,20,20,30,40,40,50,60,60,70 };
+	int nCost2[3] = { 200,400,600 };
+	for (int i = 0; i < 4;++i)
+		for (int j = 0; j < 10; ++j)
+		{
+			nCost[i][j] /= 2;
+		}
+	for (int i = 0; i < 3; ++i) nCost2[i] /= 2;
+	/*arr_score[0] = 0;
+	for (int i = 0; i < 10; ++i) arr_score[i + 1] = arr_score[i] + nCost[3][i] / 2;
+	recursive_score(6,0,10);*/
+
 	cout<<"Input your numbers of different type following the order of light,dark,fire,thunder,water,wood:"<<endl;
 	int n[8];
 	n[6]=0;
@@ -110,13 +143,14 @@ int main(){
 	for (int i=0;i<6;i++){
 		n2[6]+=n2[i];
 	}
-	if (n2[6]==0) n2[6]=15;
+	if (n2[6]==0) n2[6]=n[6];
 	cout<<"You have input the number order as: "<<endl;
 	for (int i=0;i<6;i++)
 		cout<<n2[i]<<" ";
 	cout<<endl;
 	
-	dWeight[0]=300;dWeight[1]=400;dWeight[2]=70;dWeight[3]=25;dWeight[4]=1000;
+	//dWeight[0]=300;dWeight[1]=400;dWeight[2]=70;dWeight[3]=25;dWeight[4]=1000;
+	dWeight[0] = 30; dWeight[1] = 40; dWeight[2] = 7; dWeight[3] = 2.5; dWeight[4] = 100;
 	cout<<"Then input your achievement score: "<<endl;
 	cin>>n[7];
 	cout<<"You have input the score: "<<n[7]<<endl;
@@ -148,7 +182,8 @@ int main(){
 		}
 	}
 
-	dWeight[0]=300;dWeight[1]=150;dWeight[2]=150;dWeight[3]=50;dWeight[4]=500;
+	//dWeight[0]=300;dWeight[1]=150;dWeight[2]=150;dWeight[3]=50;dWeight[4]=500;
+	dWeight[0] = 30; dWeight[1] = 15; dWeight[2] = 15; dWeight[3] = 5; dWeight[4] = 50;
 	cout<<"Then input your tank weight with the order of vit,atk,def,rec,spec(all should be an integer near 100, for example 300,150,150,50,500,"
 		" if you want to directly use the default example, please enter the enter key!): "<<endl;
 	ch1=cin.get();
@@ -174,20 +209,24 @@ int main(){
 			dWeightMap[j][i]+=dWeight[j]*n2[i]/nAllNum;
 	}
 
-	const int nCost[4][10]=
-	{20,40,40,60,80,80,100,120,120,140,
-	60,120,120,180,240,240,300,360,360,420,
-	20,40,40,60,80,80,100,120,120,140,
-	10,20,20,30,40,40,50,60,60,70};
-	const int nCost2[3]={200,400,600};
 	for (int i=0;i<4;i++){
-		g_nCostSum[i][0]=nCost[i][0];
-		for (int j=1;j<10;j++)
-			g_nCostSum[i][j]=g_nCostSum[i][j-1]+nCost[i][j];
+		g_nCostSum[i][0][0]=nCost[i][0];
+		for (int j = 1; j < 10; j++) {
+			g_nCostSum[i][j][0] = g_nCostSum[i][j - 1][0] + nCost[i][j];
+		}
 	}
-	g_nCostSum[4][0]=nCost2[0];
-	for (int j=1;j<3;j++)
-		g_nCostSum[4][j]=g_nCostSum[4][j-1]+nCost2[j];
+	g_nCostSum[4][0][0]=nCost2[0];
+	for (int j = 1; j < 3; j++) {
+		g_nCostSum[4][j][0] = g_nCostSum[4][j - 1][0] + nCost2[j];
+	}
+	for (int i = 0; i <= 4; ++i) 
+		if (i!=3)
+			for (int j = 0; j < 10; ++j)
+				g_nCostSum[i][j][1] = g_nCostSum[i][j][0]/2;
+	g_nCostSum[3][0][1] = nCost[3][0]/2;
+	for (int j = 1; j < 10; ++j) {
+		g_nCostSum[3][j][1] = g_nCostSum[3][j - 1][1] + nCost[3][j]/2;
+	}
 
 	int nLeft=n[7];
 	int nSet[7][5]={0};	//nSet[6][x] is the full type
@@ -364,7 +403,7 @@ int main(){
 				if (g_nMaxValue<f[n[7]/5][v2][v3][kk]) g_nMaxValue=f[n[7]/5][v2][v3][kk];
 			}*/
 			if (i!=6&&j==0){//[i-1]..[0(i-1)] is different from [i]..[0(i)]!!!we want to use [i]..[0(i)]!!!
-				for (int v=n[7]/5;v>0;v--)
+				for (int v=n[7] div5;v>0;v--)
 					for (int v2=40;v2>-1;v2--)
 						for (int v3=40;v3>-1;v3--)
 							for (int kk=0;kk<4;kk++){//if k=-1 only this state need to be compared with former f[v][v2][v3][x]
@@ -372,11 +411,11 @@ int main(){
 								//if (v3!=0||kk!=0) f[i][0][v][v2][v3][kk]=0;
 							}
 			}
-			for (int v=n[7]/5;v>0;v--){
+			for (int v=n[7] div5;v>0;v--){
 				if (i==6){
 					if (j==0){
 						for (int k=0;k<10;k++)//11 selections
-							if (v-g_nCostSum[j][k]/nCostCoeff[i]/5>=0){
+							if (v-g_nCostSum[j][k][nCostCoeff[i]] div5>=0){
 								int nTmp=(k+1)*dWeightMap[j][i];
 								if (f[i][j][v][k+1][k+1][(k+1)/3]<nTmp) f[i][j][v][k+1][k+1][(k+1)/3]=nTmp;
 							}
@@ -388,22 +427,22 @@ int main(){
 							}
 							for (int k=0;k<10;k++){//1+10 selections
 								if (j==4&&k>2) break;
-								if (v-g_nCostSum[j][k]/nCostCoeff[i]/5>=0&&
+								if (v-g_nCostSum[j][k][nCostCoeff[i]] div5>=0&&
 									(j!=4&&v2-(k+1)>=0||
 									j==4&&v2>=15+k*10)){
 										int nMax=0;
 										if (j!=4){
 											for (int kk=(k+1)/3;kk<4;kk++){
 												int nTmp=0;
-												if (k<2&&v2==k+1||f[i][(j+1)%4][v-g_nCostSum[j][k]/nCostCoeff[i]/5][v2-(k+1)][v2-(k+1)][kk]>0)//we must ensure the former one==0 exists only under nV2==nV3==0!!!
-													nTmp=f[i][(j+1)%4][v-g_nCostSum[j][k]/nCostCoeff[i]/5][v2-(k+1)][v2-(k+1)][kk]+(k+1)*dWeightMap[j][i];
+												if (k<2&&v2==k+1||f[i][(j+1)%4][v-g_nCostSum[j][k][nCostCoeff[i]] div5][v2-(k+1)][v2-(k+1)][kk]>0)//we must ensure the former one==0 exists only under nV2==nV3==0!!!
+													nTmp=f[i][(j+1)%4][v-g_nCostSum[j][k][nCostCoeff[i]] div5][v2-(k+1)][v2-(k+1)][kk]+(k+1)*dWeightMap[j][i];
 												if (nMax<nTmp) nMax=nTmp;
 											}
 										}else{
 											for (int kk=0;kk<4;kk++){
 												int nTmp=0;
-												if (f[i][(j+1)%4][v-g_nCostSum[j][k]/nCostCoeff[i]/5][v2][v2][kk]>0)
-													nTmp=f[i][(j+1)%4][v-g_nCostSum[j][k]/nCostCoeff[i]/5][v2][v2][kk]+(k+1)*dWeightMap[j][i];
+												if (f[i][(j+1)%4][v-g_nCostSum[j][k][nCostCoeff[i]] div5][v2][v2][kk]>0)
+													nTmp=f[i][(j+1)%4][v-g_nCostSum[j][k][nCostCoeff[i]] div5][v2][v2][kk]+(k+1)*dWeightMap[j][i];
 												if (nMax<nTmp) nMax=nTmp;
 											}
 										}
@@ -417,13 +456,13 @@ int main(){
 						for (int v2=40;v2>-1;v2--){
 							for (int v3=40;v3>-1;v3--){
 								for (int k=0;k<10;k++){//11 selections
-									if (v-g_nCostSum[j][k]/nCostCoeff[i]/5>=0&&
+									if (v-g_nCostSum[j][k][nCostCoeff[i]] div5>=0&&
 										v3==k+1&&(k<2||v2>=15+((k-2)/3)*10)){
 											int nMax=0;
 											for (int kk=0;kk<4;kk++){
 												int nTmp=0;
-												if (k<2&&v2==0||f[i][0][v-g_nCostSum[j][k]/nCostCoeff[i]/5][v2][0][kk]>0)//[i-1]..[0(i-1)] is different from [i]..[0(i)]!!!here we want to use [i]..[0(i)], but it doesn't mean we can take twice or more! so we cannot miss the order of v!
-													nTmp=f[i][0][v-g_nCostSum[j][k]/nCostCoeff[i]/5][v2][0][kk]+(k+1)*dWeightMap[j][i];
+												if (k<2&&v2==0||f[i][0][v-g_nCostSum[j][k][nCostCoeff[i]] div5][v2][0][kk]>0)//[i-1]..[0(i-1)] is different from [i]..[0(i)]!!!here we want to use [i]..[0(i)], but it doesn't mean we can take twice or more! so we cannot miss the order of v!
+													nTmp=f[i][0][v-g_nCostSum[j][k][nCostCoeff[i]] div5][v2][0][kk]+(k+1)*dWeightMap[j][i];
 												if (nMax<nTmp) nMax=nTmp;
 											}
 											if (f[i][0][v][v2][k+1][(k+1)/3]<nMax) f[i][0][v][v2][k+1][(k+1)/3]=nMax;
@@ -440,22 +479,22 @@ int main(){
 								}
 								for (int k=0;k<10;k++){//1+10 selections
 									if (j==4&&k>2) break;
-									if (v-g_nCostSum[j][k]/nCostCoeff[i]/5>=0&&
+									if (v-g_nCostSum[j][k][nCostCoeff[i]] div5>=0&&
 										(j!=4&&v3-(k+1)>=0||
 										j==4&&v2>=15+k*10&&v3>=nStraBase[i]+k*10)){
 											int nMax=0;
 											if (j!=4){
 												for (int kk=(k+1)/3;kk<4;kk++){
 													int nTmp=0;
-													if (k<2&&v3==k+1&&v2==0||f[i][(j+1)%4][v-g_nCostSum[j][k]/nCostCoeff[i]/5][v2][v3-(k+1)][kk]>0)
-														nTmp=f[i][(j+1)%4][v-g_nCostSum[j][k]/nCostCoeff[i]/5][v2][v3-(k+1)][kk]+(k+1)*dWeightMap[j][i];
+													if (k<2&&v3==k+1&&v2==0||f[i][(j+1)%4][v-g_nCostSum[j][k][nCostCoeff[i]] div5][v2][v3-(k+1)][kk]>0)
+														nTmp=f[i][(j+1)%4][v-g_nCostSum[j][k][nCostCoeff[i]] div5][v2][v3-(k+1)][kk]+(k+1)*dWeightMap[j][i];
 													if (nMax<nTmp) nMax=nTmp;
 												}
 											}else{
 												for (int kk=0;kk<4;kk++){
 													int nTmp=0;
-													if (f[i][(j+1)%4][v-g_nCostSum[j][k]/nCostCoeff[i]/5][v2][v3][kk]>0)
-														nTmp=f[i][(j+1)%4][v-g_nCostSum[j][k]/nCostCoeff[i]/5][v2][v3][kk]+(k+1)*dWeightMap[j][i];
+													if (f[i][(j+1)%4][v-g_nCostSum[j][k][nCostCoeff[i]] div5][v2][v3][kk]>0)
+														nTmp=f[i][(j+1)%4][v-g_nCostSum[j][k][nCostCoeff[i]] div5][v2][v3][kk]+(k+1)*dWeightMap[j][i];
 													if (nMax<nTmp) nMax=nTmp;
 												}
 											}
@@ -473,13 +512,13 @@ int main(){
 			else j=4;//j's order is 0 3 2 1 4
 		}while (j!=0);
 	}
-	g_nMaxValue=0;g_nMaxLeft=n[7]/5;
+	g_nMaxValue=0;g_nMaxLeft=n[7] div5;
 	int nMaxV[3]={0};
 	for (int v2=0;v2<41;v2++)
 		for (int v3=0;v3<41;v3++)
 			for (int kk=0;kk<4;kk++){
-				if (g_nMaxValue<f[0][4][n[7]/5][v2][v3][kk]){
-					g_nMaxValue=f[0][4][n[7]/5][v2][v3][kk];
+				if (g_nMaxValue<f[0][4][n[7] div5][v2][v3][kk]){
+					g_nMaxValue=f[0][4][n[7] div5][v2][v3][kk];
 					nMaxV[0]=v2;nMaxV[1]=v3;nMaxV[2]=kk;
 				}
 			}
@@ -507,7 +546,7 @@ int main(){
 				if (j==0){
 					int nTmp=0;
 					if (i==6){
-						if (g_nMaxLeft>=g_nCostSum[j][k-1]/nCostCoeff[i]/5){
+						if (g_nMaxLeft>=g_nCostSum[j][k-1][nCostCoeff[i]] div5){
 							nMaxK=k;break;
 						}
 					}else{
@@ -516,8 +555,8 @@ int main(){
 								int nTmp=0;
 								if (k==0)
 									nTmp=f[i+1][4][g_nMaxLeft][v2][v2][kk];
-								else if (g_nMaxLeft-g_nCostSum[j][k-1]/nCostCoeff[i]/5>=0)
-									nTmp=f[i+1][4][g_nMaxLeft-g_nCostSum[j][k-1]/nCostCoeff[i]/5][v2][v2][kk]+k*dWeightMap[j][i];
+								else if (g_nMaxLeft-g_nCostSum[j][k-1][nCostCoeff[i]] div5 >=0)
+									nTmp=f[i+1][4][g_nMaxLeft-g_nCostSum[j][k-1][nCostCoeff[i]] div5][v2][v2][kk]+k*dWeightMap[j][i];
 								if (nMax<nTmp){
 									nMax=nTmp;
 									nMaxV[0]=v2;nMaxV[1]=v2;nMaxK=k;nMaxV[2]=kk;
@@ -529,8 +568,8 @@ int main(){
 									int nTmp=0;
 									if (k==0)
 										nTmp=f[i+1][4][g_nMaxLeft][v2][nV3][kk];
-									else if (g_nMaxLeft-g_nCostSum[j][k-1]/nCostCoeff[i]/5>=0)
-										nTmp=f[i+1][4][g_nMaxLeft-g_nCostSum[j][k-1]/nCostCoeff[i]/5][v2][nV3][kk]+k*dWeightMap[j][i];
+									else if (g_nMaxLeft-g_nCostSum[j][k-1][nCostCoeff[i]] div5 >=0)
+										nTmp=f[i+1][4][g_nMaxLeft-g_nCostSum[j][k-1][nCostCoeff[i]] div5][v2][nV3][kk]+k*dWeightMap[j][i];
 									if (nMax<nTmp){
 										nMax=nTmp;
 										nMaxV[0]=v2;nMaxV[1]=nV3;nMaxK=k;nMaxV[2]=kk;
@@ -544,15 +583,15 @@ int main(){
 						int nTmp=0,nV2=v2,nV3=v3;
 						if (k==0){
 							nTmp=f[i][(j+1)%4][g_nMaxLeft][v2][v3][kk];
-						}else if (g_nMaxLeft-g_nCostSum[j][k-1]/nCostCoeff[i]/5>=0){
+						}else if (g_nMaxLeft-g_nCostSum[j][k-1][nCostCoeff[i]] div5>=0){
 							if (j==4){//we must judge the max{f[i-1]..+w[i]} not max{f[i-1]}!!!
-								nTmp=f[i][(j+1)%4][g_nMaxLeft-g_nCostSum[j][k-1]/nCostCoeff[i]/5][v2][v3][kk]+k*dWeightMap[j][i];
+								nTmp=f[i][(j+1)%4][g_nMaxLeft-g_nCostSum[j][k-1][nCostCoeff[i]] div5][v2][v3][kk]+k*dWeightMap[j][i];
 							}else{
 								if (i!=6){
-									nTmp=f[i][(j+1)%4][g_nMaxLeft-g_nCostSum[j][k-1]/nCostCoeff[i]/5][v2][v3-k][kk]+k*dWeightMap[j][i];
+									nTmp=f[i][(j+1)%4][g_nMaxLeft-g_nCostSum[j][k-1][nCostCoeff[i]] div5][v2][v3-k][kk]+k*dWeightMap[j][i];
 									nV3=v3-k;
 								}else{
-									nTmp=f[i][(j+1)%4][g_nMaxLeft-g_nCostSum[j][k-1]/nCostCoeff[i]/5][v2-k][v3-k][kk]+k*dWeightMap[j][i];
+									nTmp=f[i][(j+1)%4][g_nMaxLeft-g_nCostSum[j][k-1][nCostCoeff[i]] div5][v2-k][v3-k][kk]+k*dWeightMap[j][i];
 									nV2=v2-k;nV3=v3-k;
 								}
 							}
@@ -565,7 +604,7 @@ int main(){
 				}
 			}
 			if (nMaxK>0)
-				g_nMaxLeft-=g_nCostSum[j][nMaxK-1]/nCostCoeff[i]/5;
+				g_nMaxLeft-=g_nCostSum[j][nMaxK-1][nCostCoeff[i]] div5;
 			g_nMaxSet[i][j]=nMaxK;
 			if (j==4) j=1;
 			else if (j!=0) j=(j+1)%4;
@@ -612,7 +651,7 @@ int main(){
 	for (int i=0;i<7;i++){
 		cout<<g_nMaxSet[i][4]<<" ";
 	}
-	cout<<endl<<"Left point: "<<g_nMaxLeft*5<<endl;
+	cout<<endl<<"Left point: "<<g_nMaxLeft/ (1.0 div5)<<endl;
 	cout<<endl<<"Max value: "<<g_nMaxValue<<endl;
 
 	if (ch1!='\n') cin.get();

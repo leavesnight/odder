@@ -9,3 +9,4 @@ kikanbou! Haven't you been there, eh?
 
 1)the restricted 7*5 types of bags problem is the problem met in the mobile game called Xue Zu.
 The problem solution file is called 约束背包问题.
+The newest version need at least 12GB memory(?maybe,32GB is no problem).
